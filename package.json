@@ -1,0 +1,30 @@
+{
+  "name": "midi-over-matrix",
+  "version": "1.0.0",
+  "description": "A real-time app for collaborative realtime music performing over the matrix.org network.",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && cross-env NODE_ENV=test grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/McOmghall/midi-over-matrix.git"
+  },
+  "keywords": [
+    "midi",
+    "matrix.org",
+    "music"
+  ],
+  "author": "Pedro Montoto García <pmgberm@gmail.com> (http://semprebeta.gal/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/McOmghall/midi-over-matrix/issues"
+  },
+  "homepage": "https://github.com/McOmghall/midi-over-matrix#readme",
+  "private": true,
+  "dependencies": {
+    "matrix-appservice-bridge": "^0.3.5",
+    "midi": "^0.9.4",
+    "midi-common": "0.0.4"
+  }
+}
