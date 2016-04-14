@@ -1,8 +1,8 @@
 # midi-over-matrix
 A real-time app for collaborative realtime music performing over the matrix.org network.
 
-Roadmap
-#####
+## Roadmap
+
 
 - Implement as a chrome app interface (since firefox apps will support same format soon there shouldn't be portability problems)
 - Use sockets to connect clients directly (not really usable since it probably requires NAT redirection for most users)
