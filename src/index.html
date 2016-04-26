@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html ng-app="MidiOverMatrix">
+  <head>
+  	<script src="./main.js"></script>
+  </head>
+  <body ng-controller="MidiOverMatrixCtrl">
+ 	<div ng-hide="isLoggedIn">
+      <div><label>Name:</label><input name="user.name" type="text" ng-model="user.name" /></div>
+      <div><label>Password:</label><input name="user.password" type="password" ng-model="user.password" /></div>
+      <div><label>Server:</label><input name="user.homeserver" type="text" ng-model="user.homeserver"  /></div>
+    
+      <input type="submit" ng-click="login(user.name, user.password, user.homeserver)" value="Login" />
+    </div>
+ 	<div ng-show="isLoggedIn">
+ 	  Joined rooms
+      <div ng-repeat="room in ownRooms">
+        <div style="border: 1px solid red;" ng-init="jam = room.currentState.getStateEvents('m.midi.jamming', '')">
+          {{ room.name }} {{ jam ? 'Jam started by ' + jam.getSender() : 'Jam not started' }}
+        </div>
+      </div>
+      <input type="submit" ng-click="stop()" value="Stop Client" />
+    </div>
+  </body>
+</html>

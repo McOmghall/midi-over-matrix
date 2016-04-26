@@ -2,9 +2,13 @@
   "name": "midi-over-matrix",
   "version": "1.0.0",
   "description": "A real-time app for collaborative realtime music performing over the matrix.org network.",
-  "main": "index.js",
   "scripts": {
-    "test": "standard && cross-env NODE_ENV=test grunt test"
+    "test": "standard && cross-env NODE_ENV=test gulp test",
+    "gulp:clean": "gulp clean",
+    "gulp:js": "gulp js",
+    "gulp:copy": "gulp copy",
+    "gulp:build": "gulp default",
+    "postinstall": "npm run gulp:build"
   },
   "repository": {
     "type": "git",
@@ -23,8 +27,18 @@
   "homepage": "https://github.com/McOmghall/midi-over-matrix#readme",
   "private": true,
   "dependencies": {
-    "matrix-appservice-bridge": "^0.3.5",
+    "angular": "^1.5.5",
+    "browserify": "^13.0.0",
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-print": "^2.0.1",
+    "gulp-util": "^3.0.7",
+    "matrix-js-sdk": "^0.5.2",
     "midi": "^0.9.4",
-    "midi-common": "0.0.4"
+    "midi-common": "0.0.4",
+    "run-sequence": "^1.1.5",
+    "standard": "^6.0.8",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
