@@ -14,8 +14,10 @@
  	<div ng-show="isLoggedIn">
  	  Joined rooms
       <div ng-repeat="room in ownRooms">
-        <div style="border: 1px solid red;" ng-init="jam = room.currentState.getStateEvents('m.midi.jamming', '')">
-          {{ room.name }} {{ jam ? 'Jam started by ' + jam.getSender() : 'Jam not started' }}
+        <div style="border: 1px solid red;">
+          <span>{{ room.name }}</span>
+          {{jam = room.currentState.getStateEvents('m.midi.jamming', '');isJamming = jam && jam.getContent().jamming;''}}
+          <a ng-click='sendJammingEvent(room.roomId, !isJamming)'>{{ isJamming ? 'Jam started by ' + jam.getSender() : 'Jam not started' }} {{jam.getContent().jamming}}</a>
         </div>
       </div>
       <input type="submit" ng-click="stop()" value="Stop Client" />
