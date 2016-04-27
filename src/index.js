@@ -10,8 +10,10 @@ var midiOverMatrixCtrl = ['MatrixManager', 'MidiManager', '$scope', '$log', '$in
   $scope.ownRooms = []
   $scope.publicRooms = []
 
+  var loginPromise = null
+  
   $scope.login = function (username, password, homeserver) {
-    var loginPromise = MatrixManager.login(username, password, homeserver)
+    loginPromise = MatrixManager.login(username, password, homeserver)
     loginPromise.then(function (client) {
       $log.debug('After login: client')
       client.on('sync', function (state, prevState, result) {
@@ -30,9 +32,14 @@ var midiOverMatrixCtrl = ['MatrixManager', 'MidiManager', '$scope', '$log', '$in
   }
 
   $scope.stop = function () {
-    if (MatrixManager.client) {
-      MatrixManager.client.stopClient()
+    $log.debug('Stopping client')
+    if (loginPromise) {
+      $log.debug('Stopped client')
       $scope.isLoggedIn = false
+      loginPromise.then(function (client){
+        client.stopClient()
+        $log.debug('Stopped client 2')
+      })
     }
   }
 
