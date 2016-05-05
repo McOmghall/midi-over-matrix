@@ -34,8 +34,6 @@
     "gulp-print": "^2.0.1",
     "gulp-util": "^3.0.7",
     "matrix-js-sdk": "^0.5.2",
-    "midi": "^0.9.4",
-    "midi-common": "0.0.4",
     "run-sequence": "^1.1.5",
     "standard": "^6.0.8",
     "vinyl-buffer": "^1.0.0",

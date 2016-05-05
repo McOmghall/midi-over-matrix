@@ -10,6 +10,11 @@ var midiOverMatrixCtrl = ['MatrixManager', 'MidiManager', '$scope', '$log', '$in
   $scope.ownRooms = []
   $scope.publicRooms = []
 
+  MidiManager.start()
+  MidiManager.on('data', function (data) {
+    $log.debug('Received midi data %j', data)
+  })
+
   // This packs the client for uses on scope functions
   // .then's must return the client they use for other functions
   var loginPromise = null

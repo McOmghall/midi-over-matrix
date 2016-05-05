@@ -1,27 +1,40 @@
-module.exports = ['$window', '$log', function ($window, $log) {
-  var onMIDIFailure = function onMIDIFailure (e) {
+const util = require('util')
+const EventEmitter = require('events')
+
+util.inherits(MidiManager, EventEmitter)
+
+function MidiManager ($window, $log) {
+  EventEmitter.call(this)
+  var midiManager = this
+
+  this.start = function start () {
+    if ($window.navigator && typeof $window.navigator.requestMIDIAccess === 'function') {
+      $log.debug('Requesting midi access')
+      $window.navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure)
+    } else {
+      $log.error('No Web MIDI support')
+    }
+  }
+
+  function onMIDISuccess (midi) {
+    $log.debug('Midi success: midi %j', midi)
+    midi.inputs.forEach(function (port, key) {
+      $log.debug('Inputs: key %j port %j', key, port)
+      port.onmidimessage = onMIDIMessage
+    })
+    midi.outputs.forEach(function (port, key) {
+      $log.debug('Outputs: key %j port %j', key, port)
+    })
+  }
+
+  function onMIDIFailure (e) {
     $log.debug("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + e)
   }
 
-  var onMIDISuccess = function onMIDISuccess (midi) {
-    $log.debug('Midi success')
-    var inputs = midi.inputs.values()
-    // loop through all inputs
-    for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
-      // listen for midi messages
-      input.value.onmidimessage = onMIDIMessage
-      // this just lists our inputs in the console
-      var input = inputs.value
-      $log.debug("Input port : [ type:'" + input.type + "' id: '" + input.id +
-        "' manufacturer: '" + input.manufacturer + "' name: '" + input.name +
-        "' version: '" + input.version + "']")
-    }
+  function onMIDIMessage (message) {
+    $log.debug('Midi message received %j', message)
+    midiManager.emit('data', message.data)
   }
-  this.connect = function _connect () {
-    if ($window.navigator && 'function' === typeof $window.navigator.requestMIDIAccess) {
-      $window.navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure)
-    } else {
-      console.error('No Web MIDI support')
-    }
-  }
-}]
+}
+
+module.exports = ['$window', '$log', MidiManager]
