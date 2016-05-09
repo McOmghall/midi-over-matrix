@@ -18,13 +18,17 @@ function MidiManager ($window, $log) {
 
   function onMIDISuccess (midi) {
     $log.debug('Midi success: midi %j', midi)
+    var portsAtStartup = {inputs: [], outputs: []}
     midi.inputs.forEach(function (port, key) {
-      $log.debug('Inputs: key %j port %j', key, port)
       port.onmidimessage = onMIDIMessage
+      portsAtStartup.inputs.push({key: key, port: port})
     })
     midi.outputs.forEach(function (port, key) {
-      $log.debug('Outputs: key %j port %j', key, port)
+      portsAtStartup.outputs.push({key: key, port: port})
     })
+
+    $log.debug('All ports %j', portsAtStartup)
+    midiManager.emit('ports', portsAtStartup)
   }
 
   function onMIDIFailure (e) {

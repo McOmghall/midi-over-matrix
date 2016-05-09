@@ -6,6 +6,7 @@ var buffer = require('vinyl-buffer')
 var runSequence = require('run-sequence')
 var del = require('del')
 var print = require('gulp-print')
+var stripNgLog = require('gulp-strip-ng-log')
 var path = require('path')
 
 gutil.log('Building...')
@@ -39,9 +40,11 @@ gulp.task('js', function browserifyBundle () {
   b.on('log', gutil.log)
   b.on('error', gutil.log)
 
-  return b.bundle()
-    .pipe(source('main.js'))
-    .pipe(print())
+  var bundler = b.bundle().pipe(source('main.js'))
+  if (production) {
+    bundler = bundler.pipe(stripNgLog())
+  }
+  return bundler.pipe(print())
     .pipe(buffer())
     .pipe(gulp.dest(distroDir))
 })

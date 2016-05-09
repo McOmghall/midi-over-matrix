@@ -1,26 +1,47 @@
 <!DOCTYPE html>
 <html ng-app="MidiOverMatrix">
-  <head>
-  	<script src="./main.js"></script>
-  </head>
-  <body ng-controller="MidiOverMatrixCtrl">
- 	<div ng-hide="isLoggedIn">
-      <div><label>Name:</label><input name="user.name" type="text" ng-model="user.name" /></div>
-      <div><label>Password:</label><input name="user.password" type="password" ng-model="user.password" /></div>
-      <div><label>Server:</label><input name="user.homeserver" type="text" ng-model="user.homeserver"  /></div>
-    
-      <input type="submit" ng-click="login(user.name, user.password, user.homeserver)" value="Login" />
-    </div>
- 	<div ng-show="isLoggedIn">
- 	  Joined rooms
-      <div ng-repeat="room in ownRooms">
-        <div style="border: 1px solid red;">
-          <span>{{ room.name }}</span>
-          {{ jam = room.currentState.getStateEvents('m.midi.jamming', ''); isJamming = jam && jam.getContent().jamming; '' }}
-          <a ng-click='sendJammingEvent(room.roomId, !isJamming)'>{{ isJamming ? 'Jam started by ' + jam.getSender() : 'Jam not started' }} {{jam.getContent().jamming}}</a>
-        </div>
-      </div>
-      <input type="submit" ng-click="stop()" value="Stop Client" />
-    </div>
-  </body>
+<head>
+<script src="./main.js"></script>
+</head>
+<body ng-controller="MidiOverMatrixCtrl">
+	<!-- Matrix context -->
+	<div ng-hide="isLoggedIn">
+		<div>
+			<label>Name:</label><input name="user.name" type="text" ng-model="user.name" />
+		</div>
+		<div>
+			<label>Password:</label><input name="user.password" type="password" ng-model="user.password" />
+		</div>
+		<div>
+			<label>Server:</label><input name="user.homeserver" type="text" ng-model="user.homeserver" />
+		</div>
+		<input type="submit" ng-click="login(user.name, user.password, user.homeserver)" value="Login" />
+	</div>
+	<div ng-show="isLoggedIn">
+		Joined rooms
+		<div ng-repeat="room in ownRooms | orderBy: 'tags[m.favourite][order]'">
+			<div style="border: 1px solid red;">
+				<span>{{ room.name }}</span>
+				{{ jam = room.currentState.getStateEvents('m.midi.jamming', ''); isJamming = jam && jam.getContent().jamming; '' }}
+				<a ng-click='sendJammingEvent(room.roomId, !isJamming)'>{{ isJamming ? 'Jam started by ' + jam.getSender() : 'Jam not started' }} {{jam.getContent().jamming}}</a>
+			</div>
+		</div>
+		<input type="submit" ng-click="stop()" value="Stop Client" />
+	</div>
+	<!-- Midi context -->
+	<div>
+		<div>
+			Midi inputs
+			<div ng-repeat="input in midiInputs">
+			  {{input.key}} - {{input.port.name}} - {{input.port | json}}
+			</div>
+		</div>
+		<div>
+			Midi outputs
+			<div ng-repeat="output in midiOutputs">
+			  {{output.key}} - {{output.port.name}} - {{output.port | json}}
+			</div>
+		</div>
+	</div>
+</body>
 </html>
