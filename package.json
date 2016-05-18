@@ -37,10 +37,12 @@
     "gulp-strip-ng-log": "^1.1.2",
     "gulp-util": "^3.0.7",
     "matrix-js-sdk": "^0.5.2",
+    "midimessage": "^1.0.5",
     "run-sequence": "^1.1.5",
     "serve-favicon": "^2.3.0",
     "standard": "^6.0.8",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "webrtc-adapter": "^1.1.0"
   }
 }

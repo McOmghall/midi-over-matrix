@@ -5,7 +5,7 @@
 </head>
 <body ng-controller="MidiOverMatrixCtrl">
 	<!-- Matrix context -->
-	<div ng-hide="isLoggedIn">
+	<div ng-hide="matrix.isLoggedIn">
 		<div>
 			<label>Name:</label><input name="user.name" type="text" ng-model="user.name" />
 		</div>
@@ -15,32 +15,41 @@
 		<div>
 			<label>Server:</label><input name="user.homeserver" type="text" ng-model="user.homeserver" />
 		</div>
-		<input type="submit" ng-click="login(user.name, user.password, user.homeserver)" value="Login" />
+		<input type="submit" ng-click="matrix.login(user.name, user.password, user.homeserver)" value="Login" />
 	</div>
-	<div ng-show="isLoggedIn">
+	<div ng-show="matrix.isLoggedIn">
+		<!-- SELECTION BY ROOMS NOT AVAILABLE YET, ONLY PASS BY USERS
 		Joined rooms
-		<div ng-repeat="room in ownRooms | orderBy: 'tags[m.favourite][order]'">
+		<div ng-repeat="room in matrix.ownRooms | orderBy: 'tags[m.favourite][order]'">
 			<div style="border: 1px solid red;">
 				<span>{{ room.name }}</span>
 				{{ jam = room.currentState.getStateEvents('m.midi.jamming', ''); isJamming = jam && jam.getContent().jamming; '' }}
-				<a ng-click='sendJammingEvent(room.roomId, !isJamming)'>{{ isJamming ? 'Jam started by ' + jam.getSender() : 'Jam not started' }} {{jam.getContent().jamming}}</a>
+				<a ng-click='matrix.setJammingStatus(room.roomId, !isJamming)'>{{ isJamming ? 'Jam started by ' + jam.getSender() : 'Jam not started' }} {{jam.getContent().jamming}}</a>
 			</div>
 		</div>
-		<input type="submit" ng-click="stop()" value="Stop Client" />
+	 -->
+		<input type="submit" ng-click="matrix.stop()" value="Stop Client" />
+		<input type="text" ng-model="users.filter.userId" />
+		<div ng-repeat="user in matrix.users | filter:users.filter">
+		   <div>
+		     {{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}
+		   </div>
+		</div>
+		<div ng-repeat="user in matrix.users | orderBy: ['-currentlyActive', 'presence', 'userId'] | filter:users.filter">
+		   <div>
+		     {{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}
+		   </div>
+		</div>
 	</div>
 	<!-- Midi context -->
 	<div>
 		<div>
 			Midi inputs
-			<div ng-repeat="input in midiInputs">
-			  {{input.key}} - {{input.port.name}} - {{input.port | json}}
-			</div>
+			<div ng-repeat="input in midi.inputsArray">{{input.key}} - {{input.port.name}}</div>
 		</div>
 		<div>
 			Midi outputs
-			<div ng-repeat="output in midiOutputs">
-			  {{output.key}} - {{output.port.name}} - {{output.port | json}}
-			</div>
+			<div ng-repeat="output in midi.outputsArray">{{output.key}} - {{output.port.name}}</div>
 		</div>
 	</div>
 </body>
