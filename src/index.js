@@ -10,7 +10,19 @@ function MidiOverMatrixCtrl (DatachannelMeshOverMatrix, MidiManager, MatrixManag
   $scope.isLoggedIn = false
   $scope.matrix = MatrixManager
   $scope.midi = MidiManager
+  $scope.midiInBrowser = true
 
+  var playOnBrowser = function playOnBrowser (data) {
+    MidiManager.webAudioPlay(data)
+  }
+  $scope.manageMidiInBrowser = function () {
+    DatachannelMeshOverMatrix.removeListener('data', playOnBrowser)
+    if ($scope.midiInBrowser) {
+      DatachannelMeshOverMatrix.on('data', playOnBrowser)
+    }
+  }
+
+  $scope.manageMidiInBrowser()
   MatrixManager.on('update', function () {
     $scope.$apply()
   })
@@ -27,9 +39,6 @@ function MidiOverMatrixCtrl (DatachannelMeshOverMatrix, MidiManager, MatrixManag
   })
   MidiManager.on('data', function (data) {
     DatachannelMeshOverMatrix.send(data)
-  })
-  DatachannelMeshOverMatrix.on('data', function (data) {
-    MidiManager.webAudioPlay(data)
   })
 }
 

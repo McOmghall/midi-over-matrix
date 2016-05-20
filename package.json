@@ -40,6 +40,7 @@
     "midimessage": "^1.0.5",
     "run-sequence": "^1.1.5",
     "serve-favicon": "^2.3.0",
+    "soundfont-player": "file:///Users\\pmgbe_000\\git\\soundfont-player",
     "standard": "^6.0.8",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",

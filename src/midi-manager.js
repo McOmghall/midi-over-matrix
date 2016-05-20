@@ -1,7 +1,10 @@
 const util = require('util')
 const Stream = require('stream')
-const SoundingNotes = require('./sounding-notes')
 const midimessage = require('midimessage')
+const SoundingNotes = require('./sounding-notes')
+const audioContext = new window.AudioContext()
+const Soundfont = require('soundfont-player')
+const instrumentNames = require('soundfont-player/instruments.json')
 
 util.inherits(MidiManager, Stream)
 function MidiManager ($interval, $window, $log) {
@@ -9,8 +12,17 @@ function MidiManager ($interval, $window, $log) {
   var soundingNotes = new SoundingNotes()
   this.midiAccess = {inputs: [], outputs: []}
 
+  this.instrumentNames = instrumentNames
+  this.selectedInstrument = instrumentNames[2]
+  this.changeInstrument = function () {
+    instrument = Soundfont.instrument(audioContext, this.selectedInstrument)
+  }
+  this.changeInstrument()
+
   this.webAudioPlay = function webAudioPlay (data) {
-    $log.debug('Called webAudioPlay %j', data)
+    instrument.then(function (instrument) {
+      var midiState = instrument.proccessMidiMessage(data)
+    })
   }
 
   // STATS

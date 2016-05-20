@@ -28,28 +28,39 @@
 			</div>
 		</div>
 	 -->
-		<input type="submit" ng-click="matrix.stop()" value="Stop Client" />
-		<input type="text" ng-model="users.filter.userId" />
+		<input type="submit" ng-click="matrix.stop()" value="Stop Client" /> <input type="text" ng-model="users.filter.userId" />
 		<div ng-repeat="user in matrix.users | filter:users.filter">
-		   <div>
-		     {{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}
-		   </div>
+			<div>{{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}</div>
 		</div>
 		<div ng-repeat="user in matrix.users | orderBy: ['-currentlyActive', 'presence', 'userId'] | filter:users.filter">
-		   <div>
-		     {{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}
-		   </div>
+			<div>{{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}</div>
 		</div>
 	</div>
 	<!-- Midi context -->
 	<div>
 		<div>
 			Midi inputs
-			<div ng-repeat="input in midi.inputsArray">{{input.key}} - {{input.port.name}}</div>
+			<div ng-repeat="input in midi.inputsArray">
+				<span>
+					<input type="checkbox" disabled checked/>{{input.key}} - {{input.port.name}}
+				</span>
+			</div>
 		</div>
 		<div>
 			Midi outputs
-			<div ng-repeat="output in midi.outputsArray">{{output.key}} - {{output.port.name}}</div>
+			<div>
+				<span>
+					<input type="checkbox" ng-model="midiInBrowser" ng-change="manageMidiInBrowser()" />Browser output
+				</span>
+				<span>
+					Instrument: <select ng-model="midi.selectedInstrument" ng-change="midi.changeInstrument()" ng-options="value as value for value in midi.instrumentNames"></select>
+				</span>
+			</div>
+			<div ng-repeat="output in midi.outputsArray">
+				<span>
+					<input type="checkbox" disabled />{{output.key}} - {{output.port.name}}
+				</span>
+			</div>
 		</div>
 	</div>
 </body>
