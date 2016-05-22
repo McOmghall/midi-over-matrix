@@ -7,9 +7,27 @@ You can turn on a local webserver at port 8080 with `npm install && npm start`. 
 You can check if your browser works using these links: [Datachannels](http://caniuse.com/#feat=rtcpeerconnection) [Web MIDI](http://caniuse.com/#feat=midi)
 
 ## Connection workflow
-1. Jam starter creates room with invites to jam participants.
-2. Jam starter sends message to created room with link to this app, so they can just click on it and join from their preferred client. This link contains just the room name and prompts the user to log-in inside the midi-over-matrix client.
-3. Other participants can join ad-hoc while the room still exists given they are allowed to join the room (this is matrix.org specific) and they know the room link.
+0. (OPTIONAL) Jam starter creates room with invites to jam participants.
+1. Jam starter sends message to created room with link to this app, so they can just click on it and join from their preferred client. This link contains just the room name and prompts the user to log-in inside the midi-over-matrix client.
+2. Other participants can join ad-hoc while the room still exists given they are allowed to join the room (this is matrix.org specific) and they know the room link.
+
+## Webrtc Design
+
+### Connection star topology management
+
+While jamming, jam starter is expected to set a peerConnection to itself:
+1. Jam starter generates offer (`SDP`) for a new remote connection
+2. Jam starter posts `m.midi.jamming` state event to `room` as `{jamming: true, sdp: <SDP>, starter: <started_matrix_id>}`
+3. For every user that wants to join the jam: `try` to connect to the starter using `m.midi.jamming` state, if the offer is already used by another user wait for a new `SDP` to be posted.
+
+End of jamming: 
+1. Jam starter posts `m.midi.jamming` state event to `room` as `{jamming: false}` and closes peerConnections.
+
+### Data handling
+
+JAM PARTICIPANTS: Send all generated MIDI messages to STARTER, do not play them until echo received.
+JAM STARTER: Sends all incoming MIDI messages to all connected hosts, with the exception of receiving on loopback.
+
 
 ## Roadmap v2
 - Single page app/Chrome app (doesn't use chrome app specifics, just pure HTML/js for websites)
