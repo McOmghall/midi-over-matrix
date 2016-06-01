@@ -1,33 +1,63 @@
 const util = require('util')
 const Stream = require('stream')
 const midimessage = require('midimessage')
-const SoundingNotes = require('./sounding-notes')
 const audioContext = new window.AudioContext()
 const Soundfont = require('soundfont-player')
 const instrumentNames = require('soundfont-player/instruments.json')
 
+// static conf
+const LOG_MIDI_MESSAGES = false
+const LOG_MIDI_STATS = false
+const LOG_MIDI_STATS_PERIOD = 100000
+
 util.inherits(MidiManager, Stream)
 function MidiManager ($interval, $window, $log) {
   Stream.call(this)
-  var soundingNotes = new SoundingNotes()
+  var instrument = null
   this.midiAccess = {inputs: [], outputs: []}
 
   this.instrumentNames = instrumentNames
   this.selectedInstrument = instrumentNames[2]
   this.changeInstrument = function () {
-    instrument = Soundfont.instrument(audioContext, this.selectedInstrument)
+    instrument = Soundfont.instrument(audioContext, this.selectedInstrument).then(function enrichPlayer (player) {
+      $log.warn('Adding MIDI support to soundfont-player externally, please update soundfont-player ASAP')
+      player.midiStartedNotes = {}
+      player.proccessMidiMessage = function processMidiMessage (message) {
+        if (message.messageType == null) {
+          message = midimessage(message)
+        }
+
+        if (message.messageType === 'noteon' && message.velocity === 0) {
+          message.messageType = 'noteoff'
+        }
+
+        switch (message.messageType) {
+          case 'noteon':
+            player.midiStartedNotes[message.key] = player.play(message.key, 0)
+            break
+          case 'noteoff':
+            if (player.midiStartedNotes[message.key]) {
+              player.midiStartedNotes[message.key].stop()
+            }
+            break
+          default:
+        }
+        return player.midiStartedNotes
+      }
+
+      return player
+    })
   }
   this.changeInstrument()
 
   this.webAudioPlay = function webAudioPlay (data) {
-    instrument.then(function (instrument) {
-      var midiState = instrument.proccessMidiMessage(data)
+    instrument.then(function (player) {
+      player.proccessMidiMessage(data)
+      return player
     })
   }
 
-  // STATS
-  var collectStats = true
-  if (collectStats) {
+  if (LOG_MIDI_STATS) {
     this.timeOfFirstNote = null
     this.throughput = 0
     this.bytesPerSecond = 0
@@ -39,19 +69,22 @@ function MidiManager ($interval, $window, $log) {
       this.bytesPerSecond = this.throughput / (new Date() - this.timeOfFirstNote)
       $log.debug('Midi stats %s %s %s', this.throughput, this.timeOfFirstNote, this.bytesPerSecond)
     }
-    $interval(logStats.bind(this), 5000)
+    $interval(logStats.bind(this), LOG_MIDI_STATS_PERIOD)
   }
 
   // MIDI HANDLING FUNCTIONS START
   var onMIDIMessage = function onMIDIMessage (message) {
-    $log.debug('Midi message received %j', message)
-    message.soundingNotes = soundingNotes.update(message)
+    if (LOG_MIDI_MESSAGES) {
+      $log.debug('Midi message received %j', message)
+    }
     this.emit('data', midimessage(message))
   }
   onMIDIMessage = onMIDIMessage.bind(this)
 
   var onMIDIStateChange = function onMIDIStateChange (midiEvent) {
-    $log.debug('Midi status changed %j', midiEvent)
+    if (LOG_MIDI_MESSAGES) {
+      $log.debug('Midi status changed %j', midiEvent)
+    }
     if (midiEvent.port.type === 'input') {
       midiEvent.port.onmidimessage = onMIDIMessage
     }
@@ -61,7 +94,7 @@ function MidiManager ($interval, $window, $log) {
 
   var onMIDISuccess = function onMIDISuccess (midi) {
     this.midiAccess = midi
-    $log.debug('Midi success: midi %j', this)
+    $log.info('Midi success: midi %j', this)
     var portsAtStartup = {inputs: [], outputs: []}
     this.midiAccess.inputs.forEach(function (port, key) {
       port.onmidimessage = onMIDIMessage
@@ -72,7 +105,7 @@ function MidiManager ($interval, $window, $log) {
     })
 
     this.midiAccess.onstatechange = onMIDIStateChange
-    $log.debug('All ports %j', portsAtStartup)
+    $log.info('All ports %j', portsAtStartup)
     this.emit('update')
   }
   onMIDISuccess = onMIDISuccess.bind(this)
@@ -86,11 +119,11 @@ function MidiManager ($interval, $window, $log) {
   // MIDI HANDLING FUNCTIONS END
 
   if ($window.navigator && typeof $window.navigator.requestMIDIAccess === 'function') {
-    $log.debug('Requesting midi access')
+    $log.info('Requesting midi access')
     $window.navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure)
   } else {
     $log.error('No Web MIDI support')
-    onMidiFailure("This browser doesn't have access to MIDI elements")
+    onMIDIFailure("This browser doesn't have access to MIDI elements")
   }
 }
 

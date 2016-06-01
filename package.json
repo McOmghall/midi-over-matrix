@@ -9,6 +9,7 @@
     "gulp:copy": "gulp copy",
     "gulp:build": "gulp default",
     "postinstall": "npm run gulp:build",
+    "testcycle": "standard-format -w && npm install && npm start",
     "start": "node index.js"
   },
   "repository": {
@@ -40,8 +41,9 @@
     "midimessage": "^1.0.5",
     "run-sequence": "^1.1.5",
     "serve-favicon": "^2.3.0",
-    "soundfont-player": "file:///Users\\pmgbe_000\\git\\soundfont-player",
-    "standard": "^6.0.8",
+    "soundfont-player": "^0.9.1",
+    "standard": "*",
+    "standard-format": "*",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "webrtc-adapter": "^1.1.0"

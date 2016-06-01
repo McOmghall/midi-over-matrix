@@ -5,7 +5,8 @@
 </head>
 <body ng-controller="MidiOverMatrixCtrl">
 	<!-- Matrix context -->
-	<div ng-hide="matrix.isLoggedIn">
+	<div ng-show="['UNLOGGED', 'CONNECTING', 'CONNECTED'].indexOf(matrix.status) >= 0">
+		<h1>Enter your login credentials:</h1>
 		<div>
 			<label>Name:</label><input name="user.name" type="text" ng-model="user.name" />
 		</div>
@@ -15,51 +16,61 @@
 		<div>
 			<label>Server:</label><input name="user.homeserver" type="text" ng-model="user.homeserver" />
 		</div>
-		<input type="submit" ng-click="matrix.login(user.name, user.password, user.homeserver)" value="Login" />
+		<input type="submit" ng-click="matrix.login(user.name, user.password, user.homeserver)" value="{{getLoginButtonTxt()}}" ng-disabled="['UNLOGGED'].indexOf(matrix.status) < 0" />
 	</div>
-	<div ng-show="matrix.isLoggedIn">
-		<!-- SELECTION BY ROOMS NOT AVAILABLE YET, ONLY PASS BY USERS
-		Joined rooms
-		<div ng-repeat="room in matrix.ownRooms | orderBy: 'tags[m.favourite][order]'">
-			<div style="border: 1px solid red;">
-				<span>{{ room.name }}</span>
-				{{ jam = room.currentState.getStateEvents('m.midi.jamming', ''); isJamming = jam && jam.getContent().jamming; '' }}
-				<a ng-click='matrix.setJammingStatus(room.roomId, !isJamming)'>{{ isJamming ? 'Jam started by ' + jam.getSender() : 'Jam not started' }} {{jam.getContent().jamming}}</a>
-			</div>
-		</div>
-	 -->
-		<input type="submit" ng-click="matrix.stop()" value="Stop Client" /> <input type="text" ng-model="users.filter.userId" />
-		<div ng-repeat="user in matrix.users | filter:users.filter">
-			<div>{{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}</div>
-		</div>
-		<div ng-repeat="user in matrix.users | orderBy: ['-currentlyActive', 'presence', 'userId'] | filter:users.filter">
-			<div>{{user.displayName}} ({{user.userId}}) Online:{{user.currentlyActive}}</div>
-		</div>
-	</div>
-	<!-- Midi context -->
-	<div>
+	<div ng-show="['SYNCING'].indexOf(matrix.status) >= 0">
 		<div>
-			Midi inputs
-			<div ng-repeat="input in midi.inputsArray">
-				<span>
-					<input type="checkbox" disabled checked/>{{input.key}} - {{input.port.name}}
-				</span>
-			</div>
-		</div>
-		<div>
-			Midi outputs
 			<div>
-				<span>
-					<input type="checkbox" ng-model="midiInBrowser" ng-change="manageMidiInBrowser()" />Browser output
-				</span>
-				<span>
-					Instrument: <select ng-model="midi.selectedInstrument" ng-change="midi.changeInstrument()" ng-options="value as value for value in midi.instrumentNames"></select>
-				</span>
+				<h1>Enter Jam info here:</h1>
+				<h2>(Starting a Jam doesn't use the Jam Starter data)</h2>
+				<input type="submit" ng-click="matrix.stop()" value="Or Logout" />
+				<div>
+					<label>Room:</label><input name="user.roomId" type="text" ng-model="user.roomId" />
+				</div>
+				<div>
+					<label>Jam Starter:</label><input name="user.starterId" type="text" ng-model="user.starterId" />
+				</div>
+				<input type="submit" ng-click="startJam(user.roomId)" value="Start Jam" />
+				<input type="submit" ng-click="joinJam(user.roomId, user.starterId)" value="Join Jam" />
 			</div>
-			<div ng-repeat="output in midi.outputsArray">
-				<span>
-					<input type="checkbox" disabled />{{output.key}} - {{output.port.name}}
-				</span>
+		</div>
+		<!-- Midi context -->
+		<div>
+			<h1>Midi devices</h1>
+			<div>
+				<span>Midi inputs</span>
+				<div ng-show="midi.inputsArray.length === 0">
+					<span>
+						<div>You can't use this software without MIDI input devices. Once you've connected any it will show here.</div>
+						<div>
+							If you don't have any we recommend using
+							<a href="http://vmpk.sourceforge.net/">Virtual MIDI Piano Keyboard</a>
+							and connecting it to a virtual port made with
+							<a href="http://www.tobias-erichsen.de/software/loopmidi.html">loopMIDI</a>
+						</div>
+					</span>
+				</div>
+				<div ng-repeat="input in midi.inputsArray">
+					<span>
+						<input type="checkbox" title="Configuration of MIDI ports currently disabled" disabled checked />{{input.key}} - {{input.port.name}}
+					</span>
+				</div>
+			</div>
+			<div>
+				Midi outputs
+				<div>
+					<span>
+						<input type="checkbox" ng-model="midiInBrowser" ng-change="manageMidiInBrowser()" />Browser output
+					</span>
+					<span>
+						<select ng-model="midi.selectedInstrument" ng-change="midi.changeInstrument()" ng-options="value as value for value in midi.instrumentNames"></select>
+					</span>
+				</div>
+				<div ng-repeat="output in midi.outputsArray">
+					<span>
+						<input type="checkbox" title="Configuration of MIDI ports currently disabled" disabled />{{output.key}} - {{output.port.name}}
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>

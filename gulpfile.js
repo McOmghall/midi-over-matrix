@@ -7,7 +7,6 @@ var runSequence = require('run-sequence')
 var del = require('del')
 var print = require('gulp-print')
 var stripNgLog = require('gulp-strip-ng-log')
-var path = require('path')
 
 gutil.log('Building...')
 
